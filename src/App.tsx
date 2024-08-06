@@ -1,7 +1,20 @@
+import { ErrorMessage } from "@hookform/error-message";
 import { useForm } from "react-hook-form";
+import { Button } from "./components/ui/Button";
+import { Input } from "./components/ui/Input";
+
+interface IFormData {
+  name: string;
+  age: number;
+}
 
 export function App() {
-  const { handleSubmit: hookFormSubmit, register, formState } = useForm();
+  const {
+    handleSubmit: hookFormSubmit,
+    register,
+    formState,
+    clearErrors
+  } = useForm<IFormData>();
 
   const handleSubmit = hookFormSubmit(
     (data) => {
@@ -14,37 +27,49 @@ export function App() {
   );
 
   return (
-    <div className="min-h-screen flex items-center justify-center">
-      <form className="flex flex-col gap-2" onSubmit={handleSubmit}>
+    <div className="min-h-screen flex flex-col items-center justify-center">
+      <form className="flex flex-col gap-2 w-96" onSubmit={handleSubmit}>
         <div className="flex flex-col">
-          <input
-            type="text"
-            className="text-black"
+          <Input
+            placeholder="Nome"
             {...register("name", {
-              minLength: 2,
-              required: true,
+              required: {
+                value: true,
+                message: "preencha o nome!",
+              },
             })}
           />
-          {formState.errors.name?.type === 'required' && <small className="text-red-500">Preencha este campo</small>}
-          {formState.errors.name?.type === 'minLength' && <small className="text-red-500">Tem q ter 2 digitos</small>}
+          <ErrorMessage
+            errors={formState.errors}
+            name="name"
+            render={({ message }) => (
+              <small className="text-red-500">{message}</small>
+            )}
+          />
         </div>
         <div className="flex flex-col">
-          <input
+          <Input
+            placeholder="Idade"
             type="number"
-            className="text-black"
             {...register("age", {
-              min: 18,
-              max: 99,
-              setValueAs: (value) => Number(value),
-              required: true,
+              required: {
+                value: true,
+                message: "preencha a idade!",
+              },
             })}
           />
 
-          {formState.errors.age && <small className="text-red-500">Deu ruim aqui</small>}
+          {formState.errors.age && (
+            <small className="text-red-500">Deu ruim aqui</small>
+          )}
         </div>
 
-        <button type="submit">Enviar</button>
+        <Button className="mt-4">Enviar</Button>
       </form>
+
+      <Button size="sm" variant="outline" onClick={() => clearErrors()} className="mt-4">
+        Limpar errros
+      </Button>
     </div>
   );
 }
